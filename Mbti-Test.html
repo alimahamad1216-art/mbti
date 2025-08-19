@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ku">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>MBTI Test — Mobile</title>
+  <meta name="theme-color" content="#111" />
+  <style>
+    :root{
+      --bg:#0f1115;--card:#171a21;--muted:#a7b0c0;--text:#e8edf5;--accent:#6ae3ff;--accent2:#a0ff8f;--danger:#ff6b6b;
+      --radius:14px;--shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:linear-gradient(180deg,#0e1014,#111622 40%,#0f121a);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Noto Sans",Tahoma,Arial,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased}
+    .wrap{max-width:760px;margin-inline:auto;padding:18px 16px 40px}
+    header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:6px 0 14px}
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{width:38px;height:38px;border-radius:12px;background:
+      radial-gradient(60% 60% at 30% 30%, #6ae3ff, transparent 60%),
+      radial-gradient(60% 60% at 70% 70%, #a0ff8f, transparent 60%),
+      #101420; box-shadow:inset 0 0 0 1px #1f2430, var(--shadow)}
+    .title{font-size:18px;font-weight:700;letter-spacing:.3px}
+    .card{background:rgba(23,26,33,.78);backdrop-filter:saturate(130%) blur(8px);border:1px solid #242a36;border-radius:var(--radius);box-shadow:var(--shadow)}
+    .intro{padding:14px 14px 10px}
+    .intro p{margin:6px 0;color:var(--muted);line-height:1.5}
+    .bar{height:10px;background:#1b2230;border-radius:999px;overflow:hidden;border:1px solid #232a38}
+    .bar>span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .25s ease}
+    .q{padding:14px;border-top:1px solid #242a36}
+    .q h3{margin:0 0 8px;font-size:15px;line-height:1.4}
+    .opts{display:grid;grid-template-columns:1fr;gap:8px}
+    .opt{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid #2a3242;border-radius:12px;background:#131722}
+    .opt input{accent-color:#55e7ff;inline-size:18px;block-size:18px}
+    .muted{color:var(--muted);font-size:13px}
+    .footer{display:flex;gap:10px;padding:12px;border-top:1px solid #242a36;flex-wrap:wrap}
+    button{appearance:none;border:0;border-radius:12px;padding:12px 14px;font-weight:700}
+    .primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#051018}
+    .ghost{background:transparent;color:var(--text);border:1px solid #2b3445}
+    .danger{background:var(--danger);color:white}
+    .grid{display:grid;gap:12px}
+    .result{padding:16px}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid #2a3242;background:#111827;font-size:12px;margin:4px 6px 0 0}
+    .sc{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+    .meter{background:#121722;border:1px solid #242b39;border-radius:10px;overflow:hidden}
+    .meter b{display:flex;justify-content:space-between;padding:6px 10px;font-size:12px;color:var(--muted)}
+    .meter span{display:block;height:8px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+    .type-card{margin-top:10px;border:1px solid #2a3242;border-radius:12px;padding:12px;background:#131821}
+    .small{font-size:12px;color:var(--muted)}
+    @media (min-width:520px){
+      .opts{grid-template-columns:1fr 1fr}
+      .footer{justify-content:space-between}
+    }
+    a{color:#9fe7ff;text-decoration:none}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <div class="title">MBTI Quick Test</div>
+        <div class="small">١٦ پرس – مۆبایل‌فرەندلی</div>
+      </div>
+    </div>
+    <button class="ghost" id="btnShare" title="Share/Save">Share</button>
+  </header>
+
+  <section class="card intro" id="intro">
+    <p>بە هەموو پرسیارەکان وەڵام بدە (١٦ دانە). لە کۆتاییدا دەتبینیت لە نێوان هەر دوو دەروون‌ڕەوی دیکۆتۆمییەکان کەمێک کەی باشتر دەگرێت: <b>E/I</b>، <b>S/N</b>، <b>T/F</b>، <b>J/P</b>.</p<div class="bar" aria-label="Progress"><span id="prog"></span></div>
+  </section>
+
+  <form class="card" id="form">
+    <!-- Questions injected by JS -->
+  </form>
+
+  <section id="resultCard" class="card result" hidden>
+    <h2 style="margin:0 0 6px">ئەنجامەکەت</h2>
+    <div id="typeBadges" class="muted"></div>
+    <div class="sc" id="scales"></div>
+    <div class="type-card" id="typeCard"></div>
+    <div class="footer">
+      <button type="button" class="primary" id="again">دوبارە بکە</button>
+      <button type="button" class="ghost" id="reset">ڕێستکردن</button>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:12px;padding:12px">
+    <details>
+      <summary>نوت: تێستی خێرا و فان‌ـیە (self-report)، نە لێکۆڵینەوەیەکی فەرمی.</summary>
+      <p class="small">ئەم تێستە تەنیا بۆ خۆناسییەکی خۆش‌ەویستانە و کۆنتەنت‌کراوە. لەگەڵ ئەوەشدا، گوێ لە کۆنتێکستی کەلتووری/زمانیش بگرە.</p>
+    </details>
+  </section>
+
+  <footer class="small" style="text-align:center;margin-top:14px;color:var(--muted)">
+    Made for mobile • No tracking • Works offline
+  </footer>
+</div>
+
+<script>
+/* ======= DATA ======= */
+const QUESTIONS = [
+  // E vs I (4)
+  { t:"لە کاتێکدا ئارامی پێت پێویستە، زیاتر توانات لەگەڵ خەڵک دەهێنێ؟ یان تاکەت‌بەسەردا؟", a:["E,بە خەڵک","I,تەنها"] },
+  { t:"لە پارتیدا چی بە دەڵێن‌ترە بۆ تۆ؟", a:["E,قسه‌کردن و ناسینەوە","I,چاوگێڕی و پەیوەندیی کەم"] },
+  { t:"لە کارکردن پڕ ڕێژیم دەتەوێت؟", a:["E,تیم و هەنگاوە هەنگاو","I,سەرخۆش و بە هەڵسەنگاندن"] },
+  { t:"لە ڕۆژانی خۆر Caboose 😄 چی دەکەیت؟", a:["E,دەڵێم بۆ دروستکردنی پلانی گشت","I,لە ماڵەوە شارەزایی دەکەم"] },
+  // S vs N (4)
+  { t:"کاتێک فیکر دەکەیت، زیاتر...", a:["S,لەسەر وردەکاری و فاکت","N,لەسەر وێنەی گشتی و بیرۆکە"] },
+  { t:"لە فێربووندا پێت خۆشە...", a:["S,مشق و نمونەی واقعیش","N,مفهوم و مێسڵی خەیاڵی"] },
+  { t:"کاتێک زانیاری وەر دەگریت، پێت باشە...", a:["S,شتێکی دەستگیراو و هەیەتی","N,هۆکاری ناوخۆیی و پێشبینی"] },
+  { t:"لە کاری ڕۆژانە...", a:["S,ڕوتین و پرۆسەی دیاریکراو","N,وەڵامی نوێ و گۆڕان"] },
+  // T vs F (4)
+  { t:"کاتێک بڕیار دەدەیت...", a:["T,یاسا/ڕەشنوسی و لۆجیک","F,هەست و کارەساتی کەسان"] },
+  { t:"لە دەستەکەتدا کێشە هەیە...", a:["T,کێشەکە و فاکتەکان پێشێل ده‌کەم","F,هەستەکانی خەڵک پێشڕەوە دەگرم"] },
+  { t:"پێت خۆشە فیدباک...", a:["T,ڕاستوخۆ و بەردەوام","F,نەرم و هەستیارانە"] },
+  { t:"لە کاتی لیژنەکردن...", a:["T,یارمەتیدانی سیستماتیک","F,هاوکاری و هەماهنگی کەسان"] },
+  // J vs P (4)
+  { t:"ڕۆژنامە و پلانت...", a:["J,پێش‌خستن و پڕۆگرام","P,ئازاد و بە فڕۆکە"] },
+  { t:"کاتێک دێڵاین هەیە...", a:["J,زوو دەیکەم پاشان پۆلێش","P,لە کۆتایی کاردەکەم لە هەنگاوێکی خێرا"] },
+  { t:"لە گەشت...", a:["J,هەموو شت بە ڕێک‌خستن","P,کشف و هەست بە خودڕایی"] },
+  { t:"کاتێک یانەی نوێ فێردەبیت...", a:["J,کتێب/ڕێبەری پێشەوە","P,دەست لە یاری و تاقیکردنەوە"] },
+];
+
+const TYPE_BLURB = {
+  ISTJ:"ڕێکخستوو، پەیوەستە، باوەڕپێکراو. باش لە پلاندانان و ئەنجامدانی کار.",
+  ISFJ:"هاوکار و چاودێر. هێواش بەڵام بە پشتگوێخستن ناچێت بۆ خیزان/تیمی خۆی.",
+  INFJ:"وێنەدار و نێوەوەبین. هەستیار لەگەڵ مرۆڤ و بیرۆکەی درێژخایەن.",
+  INTJ:"پلاندانەری زێڕین. سیستەم‌سازی و ستراتیژی لەو هەمووە گرنگترە.",
+  ISTP:"چاکسازیاری چالاک. کاری دەستی + چارەسەری خێرا لە کێشەکان.",
+  ISFP:"هونەرمەند و هەستیار. هەڵسوکەوتی هاورێیان و ژیانێکی سادە حەزبەخۆ.",
+  INFP:"ڕۆمانتیک و بەهیوای. بە هەلیارەی نێوەوەی خۆیان دەژین.",
+  INTP:"فێربووی سیستەم و تیۆری. وەک دیزاینەری ئایدیاکان.",
+  ESTP:"ئاکشن‌خواز و پڕ ئێنەرژی. چارەسەری دەستەوە و ژیان لە ئێستا.",
+  ESFP:"ستاری جیهان! کێشەکان بە خەنده و کاری گشتی دەکات.",
+  ENFP:"هەڵسەنگێری خەیاڵی و بەهیوای. بەرزکردنەوەی دڵخۆشی و هاندانی تران.",
+  ENTP:"دەستکاریری ڕەخنە + نوێکاری. هەمیشە فکری نوێ هەیە.",
+  ESTJ:"بەرێوەبردنی کارا. ڕێکخستن، یاسا، ئەنجام!",
+  ESFJ:"کۆمەڵایەتی و دڵسۆز. هاوکاری و ڕازاندن لە تیم.",
+  ENFJ:"ڕێبەری هەستیار. توانای هاندانی خەڵک بۆ هەدفی گشتی.",
+  ENTJ:"رێنیشاندەر و ستراتیژیست. فێڵکردنەوەی ئەرک و بینینی گەورە."
+};
+
+/* ======= BUILD UI ======= */
+const form = document.getElementById("form");
+const introBar = document.getElementById("prog");
+const resultCard = document.getElementById("resultCard");
+const scalesEl = document.getElementById("scalesconst badges = document.getElementById("typeBadges");
+const typeCard = document.getElementById("typeCard");
+
+function makeQuestion(idx, q){
+  const idA = q${idx}_a, idB = q${idx}_b;
+  const [a1,a2] = q.a.map(s=>s.split(","));
+  return `
+    <div class="q" role="group" aria-labelledby="h${idx}">
+      <h3 id="h${idx}">${idx+1}. ${q.t}</h3>
+      <div class="opts">
+        <label class="opt" for="${idA}">
+          <input id="${idA}" type="radio" name="q${idx}" value="${a1[0]}" required />
+          <div><b>${a1[1]}</b><div class="muted">(${a1[0]})</div></div>
+        </label>
+        <label class="opt" for="${idB}">
+          <input id="${idB}" type="radio" name="q${idx}" value="${a2[0]}" required />
+          <div><b>${a2[1]}</b><div class="muted">(${a2[0]})</div></div>
+        </label>
+      </div>
+    </div>
+  `;
+}
+
+function renderQuestions(){
+  const parts = QUESTIONS.map((q,i)=>makeQuestion(i,q));
+  const footer = `
+    <div class="footer">
+      <button type="submit" class="primary">نیشاندانی ئەنجام</button>
+      <button type="button" class="ghost" id="save">پاشەکەوت لە ئامێرەکەت</button>
+      <button type="button" class="danger" id="clear">سڕینەوەی هەموو وەڵامەکان</button>
+    </div>
+  `;
+  form.innerHTML = parts.join("") + footer;
+}
+renderQuestions();
+
+/* ======= STATE (with localStorage) ======= */
+const KEY="mbti_quiz_v1";
+function saveState(){
+  const data = {};
+  QUESTIONS.forEach((_,i)=>{
+    const sel = form.querySelector(`input[name=q${i}]:checked`);
+    if(sel) data[`q${i}`]=sel.value;
+  });
+  localStorage.setItem(KEY, JSON.stringify(data));
+}
+function loadState(){
+  try{
+    const data = JSON.parse(localStorage.getItem(KEY)||"{}");
+    Object.entries(data).forEach(([k,v])=>{
+      const inp = form.querySelector(`input[name=${k}][value="${v}"]`);
+      if(inp) inp.checked = true;
+    });
+  }catch(e){}
+}
+function clearState(){
+  localStorage.removeItem(KEY);
+}
+loadState();
+
+/* ======= PROGRESS ======= */
+function updateProgress(){
+  const total = QUESTIONS.length;
+  const answered = [...form.querySelectorAll("input:checked")].length;
+  const pct = Math.round(100*answered/total);
+  introBar.style.width = pct+"%";
+}
+form.addEventListener("change", ()=>{ saveState(); updateProgress(); });
+updateProgress();
+
+/* ======= SCORING ======= */
+function score(){
+  const dims = { E:0, I:0, S:0, N:0, T:0, F:0, J:0, P:0 };
+  for(let i=0;i<QUESTIONS.length;i++){
+    const sel = form.querySelector(`input[name=q${i}]:checked`);
+    if(!sel) return null;
+    dims[sel.value] = (dims[sel.value]||0)+1;
+  }
+  const EI = dims.E>=dims.I ? "E" : "I";
+  const SN = dims.S>=dims.N ? "S" : "N";
+  const TF = dims.T>=dims.F ? "T" : "F";
+  const JP = dims.J>=dims.P ? "J" : "P";
+  return { dims, code: EI+SN+TF+JP };
+}
+
+/* ======= RENDER RESULT ======= */
+function barRow(labelL, labelR, leftCount, rightCount){
+  const total = leftCount + rightCount;
+  const leftPct = total? Math.round(100*leftCount/total) : 50;
+  const rightPct = 100-leftPct;
+  return `
+    <div class="meter" aria-label="${labelL}/${labelR}">
+      <b><span>${labelL} ${leftCount}</span><span>${labelR} ${rightCount}</span></b>
+      <span style="width:${leftPct}%;"></span>
+    </div>
+    <div class="small" style="display:flex;justify-content:space-between;margin-top:-2px">
+      <span>${labelL} ${leftPct}%</span><span>${labelR} ${rightPct}%</span>
+    </div>
+  `;
+}
+
+function showResult(){
+  const res = score();
+  if(!res){
+    alert("تکایە هەموو ١٦ پرسیارەکان وەڵام بدە.");
+    return;
+  }
+  const {dims, code} = res;
+  badges.innerHTML = `
+    <span class="pill">${code}</span>
+    <span class="pill">E:${dims.E} • I:${dims.I}</span>
+    <span class="pill">S:${dims.S} • N:${dims.N}</span>
+    <span class="pill">T:${dims.T} • F:${dims.F}</span>
+    <span class="pill">J:${dims.J} • P:${dims.P}</span>
+  `;
+  scalesEl.innerHTML = `
+    ${barRow("E","I",dims.E,dims.I)}
+    ${barRow("S","N",dims.S,dims.N)}
+    ${barRow("T","F",dims.T,dims.F)}
+    ${barRow("J","P",dims.J,dims.P)}
+  `;
+  typeCard.innerHTML = `
+    <h3 style="margin:0 0 6px">${code}</h3<p class="muted" style="margin:0 0 8px">${TYPE_BLURB[code]||"وەسفی کۆرت نییە بۆ ئەم تایپە."}</p>
+    <details>
+      <summary>چۆن ئەم ئەنجامە بخوێنمەوە؟</summary>
+      <ul class="small">
+        <li><b>E/I</b>: دەرەوەیی یان ناوخۆیی.</li>
+        <li><b>S/N</b>: وردەکاری/فاکت یان وێنەی گشتی/هۆکار.</li>
+        <li><b>T/F</b>: لۆجیک یان هەست.</li>
+        <li><b>J/P</b>: پلاندانان یان خوێندن بە تاقیکردنەوە.</li>
+      </ul>
+    </details>
+  `;
+  resultCard.hidden = false;
+  // smooth scroll
+  resultCard.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+/* ======= EVENTS ======= */
+form.addEventListener("submit", (e)=>{e.preventDefault(); showResult();});
+form.addEventListener("click",(e)=>{
+  if(e.target.id==="save"){ saveState(); alert("پاشەکەوت کرا لە ئامێرەکەت."); }
+  if(e.target.id==="clear"){
+    if(confirm("دڵنیای له‌ سڕینه‌وه‌ی هه‌موو وه‌ڵامەکان؟")){
+      form.reset(); clearState(); updateProgress();
+    }
+  }
+});
+document.getElementById("again").addEventListener("click", ()=> {
+  window.scrollTo({top:0,behavior:"smooth"});
+});
+document.getElementById("reset").addEventListener("click", ()=>{
+  if(confirm("هەموو شت بسڕدرێتەوە و لە سەرەتا دابنرێتەوە؟")){
+    form.reset(); clearState(); updateProgress(); resultCard.hidden = true;
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+});
+document.getElementById("btnShare").addEventListener("click", async ()=>{
+  try{
+    const url = location.href;
+    const text = "تێستی خێرای MBTI — ١٦ پرس";
+    if(navigator.share){ await navigator.share({title:document.title, text, url}); }
+    else{
+      await navigator.clipboard.writeText(url);
+      alert("لینکی پەڕەکە کۆپی کرا.");
+    }
+  }catch(e){}
+});
+</script>
+</body>
+</html>
